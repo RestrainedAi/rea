@@ -71,7 +71,7 @@ export const classifyAndHashRoot = async (
   });
 };
 
-/** Classify a root and retain its admitted ZIP descriptor for child inventory. */
+/** Classify a root and retain its admitted descriptor for supported container readers. */
 export const classifyAndHashRootForInventory = async (
   path: string,
   directory: boolean,
@@ -112,7 +112,9 @@ export const classifyAndHashRootForInventory = async (
       options.signal,
     );
     const retainSource =
-      isZipPackageFormat(format) || format === "mach-o-universal";
+      isZipPackageFormat(format) ||
+      format === "mach-o-universal" ||
+      format === "pe";
     outcome = {
       kind: "completed",
       value: {

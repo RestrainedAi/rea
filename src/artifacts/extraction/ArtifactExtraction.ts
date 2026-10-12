@@ -18,6 +18,7 @@ import { SafeOutputTree } from "../SafeOutputTree.js";
 import { SafeOutputTreeCreationFailure } from "../SafeOutputTreeCreationFailure.js";
 import { ZipArtifactReader } from "../ZipArtifactReader.js";
 import { MachOSliceArtifactReader } from "../MachOSliceArtifactReader.js";
+import { InstylerArtifactReader } from "../InstylerArtifactReader.js";
 import {
   artifactExtractionResultSchema,
   type ArtifactExtractionResult,
@@ -216,7 +217,11 @@ const materializeSelection = async ({
   const byPath = new Map(
     selected.map((item) => [item.occurrence.logical_path, item]),
   );
-  const reader = await createReader(sourcePath, input);
+  const reader = await createReader(
+    sourcePath,
+    input,
+    inventory.manifest.root_sha256,
+  );
   const readerOwner: ArtifactResourceOwner = {
     kind: "reader" as const,
     reader,
@@ -227,6 +232,15 @@ const materializeSelection = async ({
   let completed: ArtifactExtractionResult | undefined;
   const extracted: ExtractedOccurrence[] = [];
   try {
+    if (
+      reader instanceof InstylerArtifactReader &&
+      !(await reader.prepare(signal))
+    )
+      throw new AnalysisUnsupportedTargetError(
+        "extract_artifact",
+        input.inputPath,
+        "PE artifact does not contain the supported Instyler Ex-it! 1.6 archive profile",
+      );
     try {
       output = await SafeOutputTree.create(input.outputRoot);
     } catch (cause: unknown) {
@@ -248,6 +262,7 @@ const materializeSelection = async ({
       compareUnicodeCodePoints(left.relative_path, right.relative_path),
     );
     completed = createExtractionResult(input, inventory, selected, extracted);
+    abortIfNeeded(signal);
     await output.commit();
     return completed;
   } catch (cause: unknown) {
@@ -420,6 +435,7 @@ const requireExtractableFormat = async (
   const directory = (await lstat(path)).isDirectory();
   if (
     !directory &&
+    format !== "pe" &&
     format !== "asar" &&
     !isMachOFormat(format) &&
     !isZipFormat(format)
@@ -438,11 +454,14 @@ const createReader = async (
     ArtifactExtractionInput,
     "inputPath" | "inputFormat" | "environment"
   >,
+  expectedRootSha256?: string,
 ): Promise<ArtifactReader> => {
   const format = input.inputFormat;
   if (await requireExtractableFormat(path, input))
     return new DirectoryArtifactReader(path);
   if (format === "asar") return new AsarArtifactReader(path);
+  if (format === "pe")
+    return new InstylerArtifactReader(path, undefined, expectedRootSha256);
   if (isZipFormat(format)) return new ZipArtifactReader(path, format);
   return new MachOSliceArtifactReader(path, input.environment);
 };

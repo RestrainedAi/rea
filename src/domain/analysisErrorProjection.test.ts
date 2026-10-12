@@ -602,6 +602,24 @@ describe("analysis error projection: caller contract", () => {
 });
 
 describe("analysis error projection: operational diagnostics", () => {
+  it("keeps mandatory structural integrity failures outside the optional digest policy", () => {
+    const projected = projectAnalysisError(
+      new ArtifactOperationError(
+        "inspect_artifact",
+        "integrity",
+        undefined,
+        "Compressed bytes failed checksum validation",
+      ),
+    );
+    expect(projected.message).toBe(
+      "Artifact is invalid or has changed. Get a fresh copy and try again.",
+    );
+    expect(projected.remediation.action).not.toContain("record-and-continue");
+    expect(projected.details).toMatchObject({
+      detail: "Compressed bytes failed checksum validation",
+    });
+  });
+
   it("distinguishes an observed Hopper exit from an undetermined provider failure", () => {
     const exited = projectAnalysisError(
       new HopperProcessError(7, { operation: "search_strings", requestId: 4 }),

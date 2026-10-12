@@ -395,9 +395,15 @@ const artifactMessage = ({
     return `ASAR unpacked companion bytes are unavailable for ${details.logicalPath}. Select the archive in place with its .unpacked directory beside it, then retry.`;
   if (reason === "unavailable")
     return "Artifact processing is unavailable for the current target or host. Check artifact support and required tools.";
-  if (reason === "integrity" && INTEGRITY_POLICY_OPERATIONS.has(operation))
+  if (
+    reason === "integrity" &&
+    INTEGRITY_POLICY_OPERATIONS.has(operation) &&
+    details !== undefined &&
+    details.declaredSha256 !== null &&
+    details.calculatedSha256 !== null
+  )
     return `${
-      details?.unpacked === true && details.calculatedSha256 !== null
+      details.unpacked
         ? `Declared ASAR integrity for unpacked entry ${details.logicalPath} contradicts its companion file; packaging tools commonly sign or strip unpacked native binaries after writing the archive.`
         : "Artifact bytes contradict declared integrity."
     } If expected, rerun ${operation === "inventory_artifact" ? "inspect_artifact" : operation} with integrity_policy=record-and-continue (CLI: --integrity-policy record-and-continue) to retain observed bytes as untrusted; otherwise get a fresh copy.`;

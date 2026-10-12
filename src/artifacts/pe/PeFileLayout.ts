@@ -1,4 +1,4 @@
-import { ArtifactReaderFailure } from "../../artifacts/ArtifactReader.js";
+import { ArtifactReaderFailure } from "../ArtifactReader.js";
 
 export const peFailure = (message: string): never => {
   throw new ArtifactReaderFailure("format", message);
@@ -35,7 +35,21 @@ const virtualExtent = (section: Section): number =>
   section.virtualSize === 0 ? section.size : section.virtualSize;
 
 /** Header admission and unambiguous file-backed RVA mapping, independent of section names. */
-export const readPeResourceLayout = (bytes: Buffer) => {
+export const readPeFileLayout = (bytes: Buffer, fileBytes = bytes.length) => {
+  if (!Number.isSafeInteger(fileBytes) || fileBytes < bytes.length)
+    peFailure("Invalid authoritative PE file byte count.");
+  const requireFileRange = (offset: number, length: number): void => {
+    if (
+      !Number.isSafeInteger(offset) ||
+      !Number.isSafeInteger(length) ||
+      offset < 0 ||
+      length < 0 ||
+      offset > fileBytes - length
+    )
+      peFailure(
+        `PE range ${String(offset)} + ${String(length)} leaves the artifact.`,
+      );
+  };
   requirePeRange(bytes, 0, 64);
   if (bytes.readUInt16LE(0) !== 0x5a4d) peFailure("Expected an MZ PE image.");
   const pe = bytes.readUInt32LE(60);
@@ -59,7 +73,7 @@ export const readPeResourceLayout = (bytes: Buffer) => {
   const headerSize = bytes.readUInt32LE(optional + 60);
   const table = optional + optionalSize;
   requirePeRange(bytes, table, sectionCount * 40);
-  if (headerSize < table + sectionCount * 40 || headerSize > bytes.length)
+  if (headerSize < table + sectionCount * 40 || headerSize > fileBytes)
     peFailure("Invalid PE SizeOfHeaders.");
   const sections: Section[] = [];
   for (let index = 0; index < sectionCount; index++) {
@@ -73,7 +87,7 @@ export const readPeResourceLayout = (bytes: Buffer) => {
     if (section.rva + virtualExtent(section) > 0x100000000)
       peFailure("PE section RVA range overflows.");
     if (section.size > 0) {
-      requirePeRange(bytes, section.offset, section.size);
+      requireFileRange(section.offset, section.size);
       if (section.offset < headerSize)
         peFailure("PE section raw bytes overlap headers.");
     }
@@ -108,7 +122,7 @@ export const readPeResourceLayout = (bytes: Buffer) => {
         size > headerSize - rva
       )
         peFailure("Ambiguous resource header RVA mapping.");
-      requirePeRange(bytes, rva, size);
+      requireFileRange(rva, size);
       return rva;
     }
     if (candidates.length !== 1)
@@ -131,7 +145,7 @@ export const readPeResourceLayout = (bytes: Buffer) => {
     )
       peFailure("Resource interval intersects overlapping virtual sections.");
     const offset = section.offset + within;
-    requirePeRange(bytes, offset, size);
+    requireFileRange(offset, size);
     return offset;
   };
   const directoryAt = optional + directoriesAt + 16;
@@ -145,6 +159,10 @@ export const readPeResourceLayout = (bytes: Buffer) => {
     directoryAt,
     rva,
     size,
+    file_body_end: backed.reduce(
+      (end, section) => Math.max(end, section.offset + section.size),
+      headerSize,
+    ),
     map,
   };
 };
