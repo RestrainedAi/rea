@@ -297,15 +297,19 @@ const readIconGroups = (
     )
     .map((group) => {
       const { offset, bytes: size } = group.payload.location;
+      const location = `RT_GROUP_ICON resource ${String(group.index)} at file offset ${String(offset)}`;
       if (
         size < 6 ||
         bytes.readUInt16LE(offset) !== 0 ||
         bytes.readUInt16LE(offset + 2) !== 1
       )
-        peFailure("Malformed RT_GROUP_ICON header.");
+        peFailure(`${location} has a malformed header.`);
       const count = bytes.readUInt16LE(offset + 4);
-      if (size !== 6 + count * 14)
-        peFailure("RT_GROUP_ICON length does not match its image count.");
+      const expectedBytes = 6 + count * 14;
+      if (size !== expectedBytes)
+        peFailure(
+          `${location} declares image count ${String(count)}, requiring ${String(expectedBytes)} bytes; payload has ${String(size)} bytes.`,
+        );
       const images: PeResources["icon_groups"][number]["images"] = [];
       for (let index = 0; index < count; index++) {
         const at = offset + 6 + index * 14;

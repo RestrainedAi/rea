@@ -1,5 +1,14 @@
 # Repository Guidelines
 
+## Fork ownership
+
+This maintained copy belongs to `RestrainedAi/rea`. Use our `origin` for branches,
+commits, pushes, issues, pull requests, and releases. Do not send changes to
+`morluto/rea`. Keep any original-project `upstream` remote as a provenance reference
+with its push URL disabled. Do not enable automatic upstream package updates.
+Maintain our own release and verification history as this becomes an independent
+product, and preserve the original MIT license and attribution.
+
 ## Product and Authority
 
 REA is a local-only reverse-engineering tool with shared CLI/MCP workflows. Distinguish observations, derivations, inferences, and unknowns; preserve Evidence provenance and session semantics through both adapters. Provider support and setup live in [README.md](README.md#choosing-a-deep-analysis-provider) and its linked guides.
