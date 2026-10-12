@@ -201,20 +201,28 @@ describe("PE header admission and bounded traversal", () => {
         return fixture.bytes;
       },
     ],
-    [
-      "malformed icon group",
-      (fixture: ReturnType<typeof peResourceFixture>) => {
-        const data = fixture.dataOffsets.at(-1) ?? 0;
-        const offset = fixture.bytes.readUInt32LE(data) - 0x1c00;
-        fixture.bytes.writeUInt16LE(3, offset + 4);
-        return fixture.bytes;
-      },
-    ],
   ])("rejects %s", async (_name, mutate) => {
     await expect(parse(mutate(peResourceFixture()))).rejects.toMatchObject({
       reason: "format",
     });
   });
+
+  it.each([
+    [1, 20],
+    [3, 48],
+  ])(
+    "anchors an icon image-count mismatch (%i) to its resource and file bytes",
+    async (count, expectedBytes) => {
+      const fixture = peResourceFixture();
+      const data = fixture.dataOffsets.at(-1) ?? 0;
+      const offset = fixture.bytes.readUInt32LE(data) - 0x1c00;
+      fixture.bytes.writeUInt16LE(count, offset + 4);
+      await expect(parse(fixture.bytes)).rejects.toMatchObject({
+        reason: "format",
+        message: `RT_GROUP_ICON resource 4 at file offset ${String(offset)} declares image count ${String(count)}, requiring ${String(expectedBytes)} bytes; payload has 34 bytes.`,
+      });
+    },
+  );
 
   it("keeps icon size mismatch and unresolved language distinct", async () => {
     const fixture = peResourceFixture();

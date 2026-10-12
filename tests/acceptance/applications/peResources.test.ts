@@ -17,8 +17,9 @@ const expectPeInputFailureAcrossAdapters = async (input: {
   readonly toolName: string;
   readonly path: string;
   readonly reason: "invalid_format" | "invalid_value";
+  readonly message?: string;
 }) => {
-  const { cli, client, toolName, path, reason } = input;
+  const { cli, client, toolName, path, reason, message } = input;
   const result = await cli.run({
     arguments: ["inspect-pe-resources", path, "--json"],
   });
@@ -28,7 +29,13 @@ const expectPeInputFailureAcrossAdapters = async (input: {
     category: "invalid_input",
     details: {
       operation: "inspect_pe_resources",
-      issues: [{ path: ["path"], reason }],
+      issues: [
+        {
+          path: ["path"],
+          reason,
+          ...(message === undefined ? {} : { message }),
+        },
+      ],
     },
   });
   const response = await client.callTool({
@@ -88,6 +95,21 @@ const expectPeInputFailuresAcrossAdapters = async (input: {
       path,
       reason,
     });
+
+  const iconFixture = peResourceFixture();
+  const iconData = iconFixture.dataOffsets.at(-1) ?? 0;
+  const iconOffset = iconFixture.bytes.readUInt32LE(iconData) - 0x1c00;
+  iconFixture.bytes.writeUInt16LE(1, iconOffset + 4);
+  const iconPath = join(root, "malformed-icon-group.exe");
+  await writeFile(iconPath, iconFixture.bytes);
+  await expectPeInputFailureAcrossAdapters({
+    cli,
+    client,
+    toolName,
+    path: iconPath,
+    reason: "invalid_format",
+    message: `RT_GROUP_ICON resource 4 at file offset ${String(iconOffset)} declares image count 1, requiring 20 bytes; payload has 34 bytes.`,
+  });
 };
 
 cliTest(
