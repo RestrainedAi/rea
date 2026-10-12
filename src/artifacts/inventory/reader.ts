@@ -4,6 +4,7 @@ import { DirectoryArtifactReader } from "../DirectoryArtifactReader.js";
 import { MachOSliceArtifactReader } from "../MachOSliceArtifactReader.js";
 import { NativeDmgArtifactReader } from "../NativeDmgArtifactReader.js";
 import { ZipArtifactReader } from "../ZipArtifactReader.js";
+import { InstylerArtifactReader } from "../InstylerArtifactReader.js";
 import type { ArtifactOccurrence } from "../../domain/artifactGraph.js";
 import {
   isZipPackageFormat,
@@ -24,6 +25,8 @@ export const createReader = (
       return new DirectoryArtifactReader(path);
     case "asar":
       return new AsarArtifactReader(path);
+    case "pe":
+      return new InstylerArtifactReader(path, rootSource);
     case "mach-o-universal":
       return process.platform === "darwin"
         ? new MachOSliceArtifactReader(path, environment, undefined, rootSource)
@@ -40,6 +43,7 @@ export const inventoryLimitations = (
   format: ArtifactOccurrence["artifact_format"],
   reader: ArtifactReader | undefined,
 ): string[] => {
+  if (reader instanceof InstylerArtifactReader) return [...reader.limitations];
   if (reader !== undefined)
     return isZipPackageFormat(reader.format)
       ? [ZIP_NON_ENTRY_TAIL_LIMITATION]

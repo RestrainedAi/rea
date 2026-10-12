@@ -169,6 +169,14 @@ ASAR, or DMG inputs when the artifact graph and findings help answer the
 question. It returns the complete artifact graph inline. Cite graph manifest
 IDs when using them.
 
+For supported Instyler Ex-it! 1.6 PE installers, the same workflow inventories
+and extracts every declared file plus `__instyler_metadata.bin`, which preserves
+the opaque overlay metadata. The narrow `IS011A0020` profile validates complete
+zlib checksums, decoded sizes and encoded extents. Installer variables remain
+literal archive paths, and decoded bytes have no direct physical source range.
+Ordinary PE files retain root-only inventory and refuse extraction. No installer
+or contained executable is run; see the [Instyler guide](https://github.com/RestrainedAi/rea/blob/main/docs/instyler-archives.md).
+
 For an IPA or a macOS `.app`, ZIP, or DMG, pass the inventory Evidence to
 `project_apple_application_graph`. It reports application roots and nested
 bundles by path convention: app extensions, XPC services, frameworks, login

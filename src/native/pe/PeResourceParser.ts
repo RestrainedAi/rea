@@ -9,9 +9,9 @@ import type {
 } from "../../domain/native/peResources.js";
 import {
   peFailure,
-  readPeResourceLayout,
+  readPeFileLayout,
   requirePeRange,
-} from "./PeResourceLayout.js";
+} from "../../artifacts/pe/PeFileLayout.js";
 
 type Range = { offset: number; bytes: number };
 type OccupiedRange = Range & {
@@ -41,7 +41,7 @@ export const parsePeResources = async (
   signal?: AbortSignal,
 ): Promise<PeResources> => {
   signal?.throwIfAborted();
-  const layout = readPeResourceLayout(bytes);
+  const layout = readPeFileLayout(bytes);
   const directories: PeResources["directories"] = [];
   const resources: PeResources["resources"] = [];
   const occupied: OccupiedRange[] = [];
