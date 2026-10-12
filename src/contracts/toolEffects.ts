@@ -99,6 +99,12 @@ export const TOOL_EFFECTS: Readonly<Record<string, ToolEffects>> = {
     launchesProcess: true,
   }),
   inspect_pe_resources: evidence,
+  inspect_palm_resources: evidence,
+  extract_palm_resources: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    idempotent: false,
+  }),
   inspect_analysis_view: evidence,
   inspect_firmware_regions: effects({
     mutatesSession: true,

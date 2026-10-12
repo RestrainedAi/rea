@@ -4,6 +4,8 @@ import {
   createRecordedCrashService,
   createBinaryLayoutService,
   createPeResourcesService,
+  createPalmResourcesService,
+  createPalmExtractionService,
 } from "../composition/binaryDiagnostics.js";
 import { CLI_COMMANDS } from "../cliCommandNames.js";
 import { logCliCommand } from "../cliLogging.js";
@@ -12,6 +14,7 @@ import type { Logger } from "pino";
 import type { CliInstance } from "./types.js";
 import { withCommandCancellation } from "./commandCancellation.js";
 import { inspectPeResourcesInputSchema } from "../domain/native/peResources.js";
+import { inspectPalmResourcesInputSchema } from "../domain/native/palmResources.js";
 
 /** Inspect operator-selected files through the same shared workflow as MCP. */
 export const registerBinaryDiagnosticsCommands = (
@@ -19,6 +22,33 @@ export const registerBinaryDiagnosticsCommands = (
   logger: Logger,
   environment: Readonly<NodeJS.ProcessEnv>,
 ): void => {
+  registerPalmExtractionCommand(cli, logger);
+  const palm = createPalmResourcesService();
+  cli.command(CLI_COMMANDS.inspectPalmResources, {
+    description:
+      "Inspect Palm resource-database header, resource file ranges and hashes without executing the app",
+    args: z.object({
+      path: z.string().describe("Local Palm PRC/resource database"),
+    }),
+    options: z.object({
+      maxFileBytes: inspectPalmResourcesInputSchema.shape.max_file_bytes,
+      maxEntries: inspectPalmResourcesInputSchema.shape.max_entries,
+    }),
+    run: ({ args, options }) =>
+      withCommandCancellation((signal) =>
+        logCliCommand(logger, CLI_COMMANDS.inspectPalmResources, async () => {
+          const result = await palm.inspect(
+            {
+              path: resolve(args.path),
+              max_file_bytes: options.maxFileBytes,
+              max_entries: options.maxEntries,
+            },
+            { signal },
+          );
+          return result.ok ? result.value : projectAnalysisError(result.error);
+        }),
+      ),
+  });
   const pe = createPeResourcesService();
   cli.command(CLI_COMMANDS.inspectPeResources, {
     description:
@@ -83,6 +113,48 @@ export const registerBinaryDiagnosticsCommands = (
             { signal },
           );
           return result.ok ? result.value : projectAnalysisError(result.error);
+        }),
+      ),
+  });
+};
+
+const registerPalmExtractionCommand = (
+  cli: CliInstance,
+  logger: Logger,
+): void => {
+  cli.command(CLI_COMMANDS.extractPalmResources, {
+    description:
+      "Export all Palm resource blocks unchanged to a fresh directory with a verified manifest",
+    args: z.object({
+      path: z.string().describe("Local Palm PRC/resource database"),
+    }),
+    options: z.object({
+      output: z
+        .string()
+        .describe("Absent output directory; its parent must exist"),
+      maxFileBytes: inspectPalmResourcesInputSchema.shape.max_file_bytes,
+      maxEntries: inspectPalmResourcesInputSchema.shape.max_entries,
+    }),
+    run: ({ args, options }) =>
+      withCommandCancellation((signal) =>
+        logCliCommand(logger, CLI_COMMANDS.extractPalmResources, async () => {
+          const service = createPalmExtractionService();
+          try {
+            const result = await service.extract(
+              {
+                path: resolve(args.path),
+                output_root: resolve(options.output),
+                max_file_bytes: options.maxFileBytes,
+                max_entries: options.maxEntries,
+              },
+              { signal },
+            );
+            return result.ok
+              ? result.value
+              : projectAnalysisError(result.error);
+          } finally {
+            await service.close();
+          }
         }),
       ),
   });

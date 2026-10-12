@@ -46,6 +46,13 @@ export const PE_RESOURCES_PROVIDER = Object.freeze({
   version: "1",
 } as const);
 
+/** Provider identity for portable, execution-free Palm resource decoding. */
+export const PALM_RESOURCES_PROVIDER = Object.freeze({
+  id: "rea-palm-resources",
+  name: "REA Palm resource parser",
+  version: "1",
+} as const);
+
 /** Provider identity for deterministic managed-code comparison workflows. */
 export const MANAGED_WORKFLOW_PROVIDER = {
   id: "rea-dotnet-workflows",

@@ -1,5 +1,36 @@
 # Native, managed, and packaged artifacts
 
+## Palm resource databases
+
+Use `inspect_palm_resources` with an absolute local PRC path, or
+`rea inspect-palm-resources ./application.prc --json`. This operation needs no
+active target, emulator, Palm ROM, or disassembler. It identifies a resource
+database from its header flag rather than the filename suffix; PalmDOC/Mobipocket
+record databases need a separate ebook/record reader.
+
+Retain the complete Evidence: the 78-byte big-endian header, ten-byte resource
+entries, byte-preserved database name/type/creator, original payload ranges and
+SHA-256 hashes, directory gap and optional appInfo/sortInfo blocks. The last
+resource ends at EOF. `tAIN` and `tver` expose byte-preserving metadata text;
+forms, bitmaps and other payloads stay opaque. Code/data labels observe tags,
+not verified instructions. Code 0 can contain tables. CPU, entry points, API
+behavior, decompilation and execution remain unobserved.
+
+For raw extraction use `extract_palm_resources` with `path` and an absolute
+absent `output_root`, or `rea extract-palm-resources ./application.prc --output ./new-resources --json`.
+The parent directory must exist. Every indexed payload is copied unchanged and
+verified by byte length and SHA-256; `manifest.json` maps safe hex-based filenames
+to resource types, IDs and original ranges. Existing destinations are refused.
+This provides the raw-resource step historically handled by prc2bin; bitmap
+decompression, visual form decoding and C decompilation remain separate stages.
+
+The initial profile requires one list and strictly ascending resource offsets.
+Nonzero chained-list pointers, duplicate type/IDs, ambiguous or out-of-file
+ranges and exhausted budgets fail without a partial inventory. `open_binary`
+does not yet admit PRC for deep code analysis. See
+[Palm resource inspection](https://github.com/RestrainedAi/rea/blob/main/docs/palm-resources.md) for format sources
+and the distinction from emulator and decompiler support.
+
 ## Go build metadata
 
 Use `inspect_go_binary` for an explicit local ELF, PE or thin Mach-O when the

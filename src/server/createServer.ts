@@ -3,7 +3,13 @@ import { createWasmArtifactService } from "../composition/wasm.js";
 import { registerWasmTools } from "./registerWasmTools.js";
 import { snapshotEnvironment } from "../process/snapshotEnvironment.js";
 import { createPeResourcesService } from "../composition/binaryDiagnostics.js";
+import {
+  createPalmResourcesService,
+  createPalmExtractionService,
+} from "../composition/binaryDiagnostics.js";
 import { registerPeResourcesTool } from "./registerPeResourcesTool.js";
+import { registerPalmResourcesTool } from "./registerPalmResourcesTool.js";
+import type { PalmExtractionService } from "../application/binaryDiagnostics/PalmExtractionService.js";
 import type { EvmInterfaceService } from "../application/evm/EvmInterfaceService.js";
 import { createEvmInterfaceService } from "../composition/evm.js";
 import { registerEvmTools } from "./registerEvmTools.js";
@@ -225,6 +231,7 @@ export const createServer = (
   const javascriptRecovery =
     options.javascriptRecovery ?? createJavaScriptRecoveryProvider(environment);
   const artifactResources = new ArtifactResourceScope();
+  const palmExtraction = createPalmExtractionService();
   const firmwareAnalysis = new FirmwareAnalysisService(
     options.firmwareAnalysis ?? createFirmwareAnalysisProvider(environment),
   );
@@ -267,6 +274,7 @@ export const createServer = (
       webModuleTrace.close(),
       javascriptRecovery.close?.() ?? Promise.resolve(),
       artifactResources.close(),
+      palmExtraction.close(),
       firmwareAnalysis.close(),
       options.browserScenarioCapture?.close?.() ?? Promise.resolve(),
     ])
@@ -332,6 +340,7 @@ export const createServer = (
     wasmArtifact,
     jeb,
     firmwareAnalysis,
+    palmExtraction,
   );
   registerAdbTools(
     server,
@@ -402,6 +411,7 @@ const registerConfiguredAnalysisTools = (
   wasmArtifact: WasmArtifactService,
   jeb: JebAnalysisPort,
   firmwareAnalysis: FirmwareAnalysisService,
+  palmExtraction: PalmExtractionService,
 ): void => {
   registerAndroidTools(
     server,
@@ -435,6 +445,14 @@ const registerConfiguredAnalysisTools = (
   registerPeResourcesTool(
     server,
     createPeResourcesService(),
+    toolLogger,
+    recordEvidence,
+    withAdmittedAnalysis,
+  );
+  registerPalmResourcesTool(
+    server,
+    createPalmResourcesService(),
+    palmExtraction,
     toolLogger,
     recordEvidence,
     withAdmittedAnalysis,

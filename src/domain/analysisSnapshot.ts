@@ -26,6 +26,7 @@ import {
   parseImmutableEvidenceBundle,
 } from "./evidenceBundle.js";
 import {
+  evidenceFormatSchema,
   evidenceLocationSchema,
   rebindEvidenceToTargetPath,
   type Evidence,
@@ -76,15 +77,7 @@ const kindSchema = z.enum(["executable", "database", "archive", "artifact"]);
 const subjectSchema = z.object({
   path: localPathStringSchema,
   sha256: digestSchema,
-  format: z.enum([
-    ...formatSchema.options,
-    "hopper",
-    "directory",
-    "file",
-    "unknown",
-    "javascript-bundle",
-    "entitlements",
-  ]),
+  format: evidenceFormatSchema,
   architecture: architectureSchema.nullable(),
 });
 const targetIdentitySchema = z.object({
