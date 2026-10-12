@@ -4,10 +4,21 @@ import { BinaryLayoutService } from "../application/binaryDiagnostics/BinaryLayo
 import { PwntoolsLayoutProvider } from "../native/pwntools/PwntoolsLayoutProvider.js";
 import { PeResourcesService } from "../application/binaryDiagnostics/PeResourcesService.js";
 import { PeResourcesProvider } from "../native/pe/PeResourcesProvider.js";
+import { PalmResourcesService } from "../application/binaryDiagnostics/PalmResourcesService.js";
+import { PalmResourcesProvider } from "../native/palm/PalmResourcesProvider.js";
+import { PalmExtractionService } from "../application/binaryDiagnostics/PalmExtractionService.js";
+import { PalmExtractionProvider } from "../native/palm/PalmExtractionProvider.js";
 
 /** Portable PE inspection with no engine, installation or target acquisition. */
 export const createPeResourcesService = (): PeResourcesService =>
   new PeResourcesService(new PeResourcesProvider());
+
+/** Portable Palm inspection without target execution or an installed engine. */
+export const createPalmResourcesService = (): PalmResourcesService =>
+  new PalmResourcesService(new PalmResourcesProvider());
+
+export const createPalmExtractionService = (): PalmExtractionService =>
+  new PalmExtractionService(new PalmExtractionProvider());
 
 /** Compose the offline adapter without import-time I/O or dependency acquisition. */
 export const createBinaryLayoutService = (

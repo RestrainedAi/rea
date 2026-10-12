@@ -2,7 +2,7 @@
 name: reverse-engineer-anything
 description: Reverse engineer native, managed, Electron/JavaScript, packaged, firmware, and browser targets with REA. Use shipped-artifact or requested runtime evidence to explain features, compare versions, decompile code, or guide a reconstruction. Skip REA for ordinary source-repository architecture analysis.
 metadata:
-  version: "39"
+  version: "41"
 ---
 
 # REA
@@ -31,8 +31,10 @@ Diagnose the observed blocker, continue useful supported work, and resume the
 original task after repair. Client approval, shell PATH, registration and engine
 availability have different remedies; avoid repeating setup for all of them.
 
-Prefer an existing `rea` CLI. When none is installed and REA package acquisition
-is within the authorized scope, use `npx -y rea-agents@latest` in its place.
+Prefer our maintained local `rea` CLI. This copy is maintained in
+`RestrainedAi/rea`: acquire, build, update and publish our own copy only, and
+preserve the original MIT attribution. Do not replace it with an automatic
+upstream npm update. Source acquisition must stay within the authorized scope.
 Configuration repair starts with a read-only setup plan; show paths, backups and
 skill replacement before applying authorized changes. Preserve existing approval
 and target-execution boundaries. REA setup never installs or upgrades unrelated
@@ -96,6 +98,13 @@ explicit path or endpoint and do not need it.
 - PE resource type/name/language trees and static icon group references:
   `inspect_pe_resources` with an explicit path. This portable operation requires
   no active target or engine; opaque payloads retain file ranges and SHA-256.
+- Palm OS PRC application/resource databases: `inspect_palm_resources` with an
+  explicit path. It inventories complete single-list headers, resources, file
+  ranges and hashes without an emulator, ROM or disassembler. Record databases
+  (including ebooks) and chained lists are rejected explicitly. Code tags do not
+  establish architecture or decompilation; `open_binary` does not yet admit PRC.
+  Use `extract_palm_resources` for unchanged raw resource files and a verified
+  manifest in an absent caller-selected output directory.
 - Native executable, library, or analysis database: `open_binary`, then
   use focused analysis tools directly; call `binary_overview` when metadata or
   inventory context is useful and available from the selected provider.

@@ -9,6 +9,12 @@ with its push URL disabled. Do not enable automatic upstream package updates.
 Maintain our own release and verification history as this becomes an independent
 product, and preserve the original MIT license and attribution.
 
+Before treating an unfamiliar target as a dead end, investigate existing work:
+primary specifications and implementations, historical developer discussions,
+forums, author blogs, and relevant video demonstrations. Preserve useful sources
+and exact tool downloads. Distinguish a missing REA capability from an unsolved
+format; use verified findings to improve this maintained copy.
+
 ## Product and Authority
 
 REA is a local-only reverse-engineering tool with shared CLI/MCP workflows. Distinguish observations, derivations, inferences, and unknowns; preserve Evidence provenance and session semantics through both adapters. Provider support and setup live in [README.md](README.md#choosing-a-deep-analysis-provider) and its linked guides.

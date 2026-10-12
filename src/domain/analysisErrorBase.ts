@@ -109,6 +109,7 @@ import type {
   AdbPackagePullPartialObservation,
 } from "./adb/adbDeviceAnalysis.js";
 import type { NativeUiObservationResult } from "./native/nativeUiObservation.js";
+import type { PalmExtraction } from "./native/palmResources.js";
 
 /** Provider-neutral evidence collected before a typed analysis failure. */
 export type AnalysisPartialObservation =
@@ -126,5 +127,6 @@ export type AnalysisPartialObservation =
   | AndroidPartialObservation
   | FirmwarePartialObservation
   | NativeUiObservationResult
+  | { readonly kind: "palm-extraction"; readonly extraction: PalmExtraction }
   | AdbAcquiredFilePartialObservation
   | AdbPackagePullPartialObservation;

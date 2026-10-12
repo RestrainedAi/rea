@@ -18,6 +18,12 @@ import {
   inspectPeResourcesInputSchema,
   peResourcesSchema,
 } from "../../domain/native/peResources.js";
+import {
+  inspectPalmResourcesInputSchema,
+  palmResourcesSchema,
+  extractPalmResourcesInputSchema,
+  palmExtractionSchema,
+} from "../../domain/native/palmResources.js";
 
 /** Caller-selected delivery of completed binary layout Evidence. */
 export const inspectBinaryLayoutRequestSchema =
@@ -25,6 +31,39 @@ export const inspectBinaryLayoutRequestSchema =
 
 /** Offline binary diagnostics are independent of macOS process/UI providers. */
 export const BINARY_DIAGNOSTICS_TOOL_CONTRACTS = [
+  {
+    name: "extract_palm_resources",
+    ...toolContractMetadata("extract_palm_resources"),
+    kind: "native-provider",
+    description:
+      "Export every indexed Palm OS PRC resource as unchanged raw .bin bytes, with the complete resource inventory and manifest.json. Uses one stable bounded input snapshot and the same validated resource map as inspect_palm_resources. Requires an absolute absent output_root with an existing parent; never replaces existing files or modifies the input. Filenames encode resource index, raw type hex and ID; payload SHA-256 and length are checked while writing and on readback. Malformed input or exhausted budgets publishes no successful export, and cancellation rolls back only the operation-owned tree. Reports any cleanup uncertainty. Raw resource export does not decompress bitmap data, reconstruct UI/source code, disassemble, or execute the application. Portable; no legacy tool, analysis engine, or Palm ROM required.",
+    inputSchema: extractPalmResourcesInputSchema,
+    outputSchema: evidenceResultOf(palmExtractionSchema),
+    examples: [
+      {
+        title: "Export raw Palm resource blocks",
+        input: {
+          path: "/artifacts/application.prc",
+          output_root: "/artifacts/resource-export",
+        },
+      },
+    ],
+  },
+  {
+    name: "inspect_palm_resources",
+    ...toolContractMetadata("inspect_palm_resources"),
+    kind: "native-provider",
+    description:
+      "Inspect an explicit local Palm OS application/resource database without executing it, opening an emulator, or starting a disassembler. Classifies by resource-database header, not .prc suffix; record databases, including PalmDOC/Mobipocket ebooks, require a separate reader. Returns the complete bounded single-list header and resource directory, byte-preserved four-character type/creator IDs, original file ranges, SHA-256 hashes, directory padding and optional appInfo/sortInfo blocks. Includes code/data resource tags and byte-preserving tAIN/tver text. Code tags do not establish CPU architecture, instructions, entry points or decompilation; form/bitmap payloads remain opaque. Chained lists, ambiguous offsets, duplicate type/IDs, malformed input and exhausted budgets return no partial success. Portable on supported Node hosts with no engine or Palm ROM required.",
+    inputSchema: inspectPalmResourcesInputSchema,
+    outputSchema: evidenceResultOf(palmResourcesSchema),
+    examples: [
+      {
+        title: "Inspect Palm PRC resource identities and file bytes",
+        input: { path: "/artifacts/application.prc" },
+      },
+    ],
+  },
   {
     name: "inspect_pe_resources",
     ...toolContractMetadata("inspect_pe_resources"),

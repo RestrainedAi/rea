@@ -44,6 +44,8 @@ export const CLI_COMMANDS = Object.freeze({
   inspectBinaryLayout: "inspect-binary-layout",
   inspectGoBinary: "inspect-go-binary",
   inspectPeResources: "inspect-pe-resources",
+  inspectPalmResources: "inspect-palm-resources",
+  extractPalmResources: "extract-palm-resources",
   inspectAnalysisView: "inspect-analysis-view",
   inspectEvidenceBundle: "inspect-evidence-bundle",
   inspectFirmwareRegions: "inspect-firmware-regions",
