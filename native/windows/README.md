@@ -39,6 +39,11 @@ without this lane reports Windows native controls as unavailable.
   parent handles with `NtCreateFile`. A protected DACL and current-user owner
   are installed at creation. Readback permits exactly the current user and SYSTEM. Child
   files inherit this boundary; private files are also checked by handle.
+- Analyzer-created regular outputs use `runtime_open_immutable` through their
+  runtime's retained parent handles. The final file permits read sharing only,
+  denying concurrent writing and replacement. This avoids reopening the owned
+  root's DELETE-bearing lease through generic path traversal. The existing
+  `runtime_open` endpoint reader keeps its original sharing contract.
 - Snapshots stream through a 64 KiB buffer on a Node async worker. Cancellation
   is checked between reads, cleanup waits for settlement, and the digest
   commits to the bytes written. Descriptor and snapshot handles remain held
@@ -66,8 +71,9 @@ without this lane reports Windows native controls as unavailable.
   classify by the notification. `inspect` reports `jobMemoryLimit` only after
   creating such a job and port. An artifact without that capability refuses a
   requested limit rather than launching an unlimited process. REA requests
-  limits only for its JavaScript helpers when running on Bun, which ignores
-  their V8 heap flags; Node.js launches are unchanged.
+  limits for its JavaScript helpers when running on Bun, which ignores their
+  V8 heap flags, and for the configured static Inno/7z analyzer. Node.js helper
+  launches are unchanged.
 - Only the suspended child's default file owner is normalized. Caller token
   privileges and ownership remain unchanged. Caller CPU affinity and process
   priority are preserved in the child. Environment names are sorted and

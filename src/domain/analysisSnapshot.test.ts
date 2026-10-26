@@ -16,6 +16,7 @@ import {
   ANALYSIS_SNAPSHOT_TARGET,
 } from "./analysisSnapshot.fixture.js";
 import { createEvidence } from "./evidence.js";
+import { createAnalysisProfile } from "./analysisProfile.js";
 import { createEvidenceBundle } from "./evidenceBundle.js";
 import type { BinaryTarget } from "./binaryTargetTypes.js";
 
@@ -71,6 +72,41 @@ const snapshotWithHistoricalEvidence = () => {
 };
 
 describe("analysis snapshot target identity", () => {
+  it("preserves a 7z archive target and Evidence subject without a CPU claim", () => {
+    const target: BinaryTarget = {
+      path: "/fixture/opaque.data",
+      sha256: "a".repeat(64),
+      kind: "archive",
+      format: "7z",
+    };
+    const profile = createAnalysisProfile(ANALYSIS_SNAPSHOT_PROVIDER, {
+      reader: "signature-classification-only",
+    });
+    const evidence = createEvidence(target, ANALYSIS_SNAPSHOT_PROVIDER, {
+      operation: "inventory_artifact",
+      parameters: {},
+      result: null,
+      analysisProfile: profile,
+    });
+    const parsed = parseAnalysisSnapshot({
+      target: snapshotTarget(target),
+      binding: snapshotBinding(profile),
+      entries: [],
+      workflow_entries: [],
+      evidence_bundle: createEvidenceBundle([evidence]),
+    });
+    expect(parsed.target).toMatchObject({
+      kind: "archive",
+      format: "7z",
+      architecture: null,
+    });
+    expect(parsed.evidence_bundle.records[0]?.subject).toMatchObject({
+      format: "7z",
+      architecture: null,
+    });
+    expect(snapshotMatchesTarget(parsed.target, target)).toBe(true);
+  });
+
   it("partitions raw snapshots and query identities by the canonical entry", () => {
     const target: BinaryTarget = {
       path: "/fixture/image.bin",

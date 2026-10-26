@@ -1,10 +1,7 @@
-import { AsarArtifactReader } from "../AsarArtifactReader.js";
 import type { ArtifactReader } from "../ArtifactReader.js";
-import { DirectoryArtifactReader } from "../DirectoryArtifactReader.js";
-import { MachOSliceArtifactReader } from "../MachOSliceArtifactReader.js";
-import { NativeDmgArtifactReader } from "../NativeDmgArtifactReader.js";
-import { ZipArtifactReader } from "../ZipArtifactReader.js";
-import { InstylerArtifactReader } from "../InstylerArtifactReader.js";
+import { createArtifactReader } from "../ArtifactReaderFactory.js";
+import { PeInstallerArtifactReader } from "../PeInstallerArtifactReader.js";
+import { StaticArchiveArtifactReader } from "../staticArchive/StaticArchiveArtifactReader.js";
 import type { ArtifactOccurrence } from "../../domain/artifactGraph.js";
 import {
   isZipPackageFormat,
@@ -17,33 +14,23 @@ export const createReader = (
   format: ArtifactOccurrence["artifact_format"],
   environment: Readonly<NodeJS.ProcessEnv>,
   rootSource?: StableRegularFileDescriptor,
-): ArtifactReader | undefined => {
-  if (isZipPackageFormat(format))
-    return new ZipArtifactReader(path, format, undefined, rootSource);
-  switch (format) {
-    case "directory":
-      return new DirectoryArtifactReader(path);
-    case "asar":
-      return new AsarArtifactReader(path);
-    case "pe":
-      return new InstylerArtifactReader(path, rootSource);
-    case "mach-o-universal":
-      return process.platform === "darwin"
-        ? new MachOSliceArtifactReader(path, environment, undefined, rootSource)
-        : undefined;
-    case "dmg":
-      if (process.platform !== "darwin") return undefined;
-      return new NativeDmgArtifactReader(path, environment);
-    default:
-      return undefined;
-  }
-};
+  expectedRootSha256?: string,
+): ArtifactReader | undefined =>
+  createArtifactReader(path, format, environment, {
+    purpose: "inventory",
+    ...(rootSource === undefined ? {} : { rootSource }),
+    ...(expectedRootSha256 === undefined ? {} : { expectedRootSha256 }),
+  });
 
 export const inventoryLimitations = (
   format: ArtifactOccurrence["artifact_format"],
   reader: ArtifactReader | undefined,
 ): string[] => {
-  if (reader instanceof InstylerArtifactReader) return [...reader.limitations];
+  if (
+    reader instanceof PeInstallerArtifactReader ||
+    reader instanceof StaticArchiveArtifactReader
+  )
+    return [...reader.limitations];
   if (reader !== undefined)
     return isZipPackageFormat(reader.format)
       ? [ZIP_NON_ENTRY_TAIL_LIMITATION]

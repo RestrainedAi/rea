@@ -1,6 +1,7 @@
 import { win32 } from "node:path";
 
 import { z } from "zod";
+import { WindowsImmutableFile } from "./WindowsImmutableFile.js";
 
 import {
   requireWindowsNativeAuthority,
@@ -91,6 +92,29 @@ export class WindowsPrivateRuntime {
       signal?.removeEventListener("abort", cancel);
       if (this.#pending === pending) this.#pending = undefined;
     }
+  }
+
+  /** Pin a Python-created regular output through this runtime's retained parent lease. */
+  openImmutableFile(relativePath: string): WindowsImmutableFile {
+    if (this.#closed || this.#closePromise !== undefined)
+      throw new Error("Private runtime is closed or closing.");
+    if (
+      typeof relativePath !== "string" ||
+      relativePath.length === 0 ||
+      relativePath.includes("\0")
+    )
+      throw new TypeError(
+        "Private immutable file coordinate must be nonempty and NUL-free.",
+      );
+    const observed: unknown = this.authority.call("runtime_open_immutable", [
+      this.observation.handle,
+      relativePath,
+    ]);
+    return WindowsImmutableFile.fromNativeObservation(
+      win32.join(this.observation.path, relativePath),
+      this.authority,
+      observed,
+    );
   }
 
   /** Read a private endpoint from an opened file, without re-opening its path. */

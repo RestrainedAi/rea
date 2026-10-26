@@ -87,6 +87,10 @@
     "bridge/pwndbg/core_context.py",
     "third_party/pwndbg/README.md",
     "third_party/pwndbg/LICENSE.md",
+    "third_party/static_archives/README.md",
+    "third_party/static_archives/Binary-Refinery-BSD-3-Clause.md",
+    "third_party/static_archives/CPython-3.14.10-LICENSE.txt",
+    "third_party/static_archives/pure-magic-rs-BSD-2-Clause.txt",
     "licenses/nativeaot-parser-MIT.txt"
   ],
   "scripts": {

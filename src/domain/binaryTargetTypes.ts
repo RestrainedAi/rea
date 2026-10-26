@@ -119,6 +119,7 @@ export type BinaryTarget =
         readonly kind: "archive";
         readonly format:
           | "zip"
+          | "7z"
           | "ipa"
           | "apk"
           | "msix"
