@@ -53,6 +53,13 @@ export const PALM_RESOURCES_PROVIDER = Object.freeze({
   version: "1",
 } as const);
 
+/** Provider identity for streamed, execution-free Samsung TAR.MD5 inspection. */
+export const SAMSUNG_FIRMWARE_PROVIDER = Object.freeze({
+  id: "rea-samsung-firmware",
+  name: "REA Samsung firmware package parser",
+  version: "1",
+} as const);
+
 /** Provider identity for deterministic managed-code comparison workflows. */
 export const MANAGED_WORKFLOW_PROVIDER = {
   id: "rea-dotnet-workflows",

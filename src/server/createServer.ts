@@ -6,10 +6,13 @@ import { createPeResourcesService } from "../composition/binaryDiagnostics.js";
 import {
   createPalmResourcesService,
   createPalmExtractionService,
+  createSamsungFirmwareService,
 } from "../composition/binaryDiagnostics.js";
 import { registerPeResourcesTool } from "./registerPeResourcesTool.js";
 import { registerPalmResourcesTool } from "./registerPalmResourcesTool.js";
 import type { PalmExtractionService } from "../application/binaryDiagnostics/PalmExtractionService.js";
+import { registerSamsungFirmwareTools } from "./registerSamsungFirmwareTools.js";
+import type { SamsungFirmwareService } from "../application/binaryDiagnostics/SamsungFirmwareService.js";
 import type { EvmInterfaceService } from "../application/evm/EvmInterfaceService.js";
 import { createEvmInterfaceService } from "../composition/evm.js";
 import { registerEvmTools } from "./registerEvmTools.js";
@@ -232,6 +235,7 @@ export const createServer = (
     options.javascriptRecovery ?? createJavaScriptRecoveryProvider(environment);
   const artifactResources = new ArtifactResourceScope();
   const palmExtraction = createPalmExtractionService();
+  const samsungFirmware = createSamsungFirmwareService();
   const firmwareAnalysis = new FirmwareAnalysisService(
     options.firmwareAnalysis ?? createFirmwareAnalysisProvider(environment),
   );
@@ -275,6 +279,7 @@ export const createServer = (
       javascriptRecovery.close?.() ?? Promise.resolve(),
       artifactResources.close(),
       palmExtraction.close(),
+      samsungFirmware.close(),
       firmwareAnalysis.close(),
       options.browserScenarioCapture?.close?.() ?? Promise.resolve(),
     ])
@@ -341,6 +346,7 @@ export const createServer = (
     jeb,
     firmwareAnalysis,
     palmExtraction,
+    samsungFirmware,
   );
   registerAdbTools(
     server,
@@ -412,6 +418,7 @@ const registerConfiguredAnalysisTools = (
   jeb: JebAnalysisPort,
   firmwareAnalysis: FirmwareAnalysisService,
   palmExtraction: PalmExtractionService,
+  samsungFirmware: SamsungFirmwareService,
 ): void => {
   registerAndroidTools(
     server,
@@ -453,6 +460,13 @@ const registerConfiguredAnalysisTools = (
     server,
     createPalmResourcesService(),
     palmExtraction,
+    toolLogger,
+    recordEvidence,
+    withAdmittedAnalysis,
+  );
+  registerSamsungFirmwareTools(
+    server,
+    samsungFirmware,
     toolLogger,
     recordEvidence,
     withAdmittedAnalysis,

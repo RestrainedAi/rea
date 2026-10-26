@@ -15,6 +15,7 @@ import type { CliInstance } from "./types.js";
 import { withCommandCancellation } from "./commandCancellation.js";
 import { inspectPeResourcesInputSchema } from "../domain/native/peResources.js";
 import { inspectPalmResourcesInputSchema } from "../domain/native/palmResources.js";
+import { registerSamsungFirmwareCommands } from "./samsungFirmwareCommands.js";
 
 /** Inspect operator-selected files through the same shared workflow as MCP. */
 export const registerBinaryDiagnosticsCommands = (
@@ -22,6 +23,7 @@ export const registerBinaryDiagnosticsCommands = (
   logger: Logger,
   environment: Readonly<NodeJS.ProcessEnv>,
 ): void => {
+  registerSamsungFirmwareCommands(cli, logger);
   registerPalmExtractionCommand(cli, logger);
   const palm = createPalmResourcesService();
   cli.command(CLI_COMMANDS.inspectPalmResources, {

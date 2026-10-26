@@ -2,7 +2,7 @@
 name: reverse-engineer-anything
 description: Reverse engineer native, managed, Electron/JavaScript, packaged, firmware, and browser targets with REA. Use shipped-artifact or requested runtime evidence to explain features, compare versions, decompile code, or guide a reconstruction. Skip REA for ordinary source-repository architecture analysis.
 metadata:
-  version: "42"
+  version: "43"
 ---
 
 # REA
@@ -64,6 +64,14 @@ explicit path or endpoint and do not need it.
   `extract_firmware` when extraction is requested, with a caller-selected new
   absolute output directory. These tools use caller-supplied Binwalk/Unblob on
   Linux; see the [firmware guide](https://github.com/morluto/rea/blob/main/docs/firmware-analysis.md).
+- Samsung TAR.MD5 packages: `inspect_samsung_firmware` with an explicit local
+  path. This portable reader needs no Linux extractor or connected device and
+  streams multi-gigabyte files. It retains complete original header/footer
+  ranges and checks the MD5 prefix including preceding build metadata.
+  `extract_samsung_firmware` exports every raw member plus footer and a verified
+  manifest into an absent output directory. A checksum match does not establish
+  publisher authenticity, compatibility, or account recovery. See the
+  [Samsung package guide](https://github.com/RestrainedAi/rea/blob/main/docs/samsung-firmware.md).
 - .NET NativeAOT PE/ELF: native Ghidra analysis. Native code can yield pseudocode;
   consult the NativeAOT workflow in `references/native-and-artifacts.md` for
   optional metadata recovery and its supported host/layout boundary.

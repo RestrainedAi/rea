@@ -13,10 +13,16 @@ const EXECUTION_WORDING =
   /\b(?:run|runs|running|launch|launches|launching|execute|executes|executing|execution|start|starts|install|installs|uninstall|uninstalls)\b/iu;
 
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
+  inspect_artifact:
+    "states that supported installer inventory does not execute its contents",
   inspect_native_load_image: "states that it does not execute the target",
   resolve_native_call_targets: "states that it does not execute code",
   inspect_pe_resources: "states that it does not execute the image",
   inspect_palm_resources: "states that it does not execute the application",
+  inspect_samsung_firmware:
+    "states that firmware inspection does not execute code or contact a device",
+  extract_samsung_firmware:
+    "states that raw export has no supplied-code execution or device effects",
   extract_palm_resources:
     "states that raw export does not execute the application",
   inspect_go_binary: "reads embedded metadata without executing the target",

@@ -12,6 +12,12 @@ import {
   analysisDetailSchema,
 } from "../analysisDetail.js";
 import type { ToolContract } from "../toolContractTypes.js";
+import {
+  inspectSamsungFirmwareInputSchema,
+  samsungFirmwareSchema,
+  extractSamsungFirmwareInputSchema,
+  samsungFirmwareExtractionSchema,
+} from "../../domain/firmware/samsungFirmware.js";
 import { toolContractMetadata } from "../toolEffects.js";
 import { evidenceResultOf } from "../toolOutputSchemaPrimitives.js";
 import {
@@ -31,6 +37,39 @@ export const inspectBinaryLayoutRequestSchema =
 
 /** Offline binary diagnostics are independent of macOS process/UI providers. */
 export const BINARY_DIAGNOSTICS_TOOL_CONTRACTS = [
+  {
+    name: "inspect_samsung_firmware",
+    ...toolContractMetadata("inspect_samsung_firmware"),
+    kind: "native-provider",
+    description:
+      "Inspect an explicit local Samsung TAR.MD5 firmware package without executing code or contacting a device. Streams the complete source and member SHA-256 hashes, validates regular GNU/POSIX TAR headers and physical extents, retains original headers/build metadata and checks the stored MD5 over its exact prefix including preceding build metadata. Reports checksum match or mismatch as an observation; neither proves publisher authenticity, device compatibility, nor account recovery. Unsupported extensions, ambiguous paths, malformed records and exhausted budgets refuse a partial inventory. Portable with no external analyzer; bounded reads support multi-gigabyte files. Use extract_samsung_firmware for verified raw file export.",
+    inputSchema: inspectSamsungFirmwareInputSchema,
+    outputSchema: evidenceResultOf(samsungFirmwareSchema),
+    examples: [
+      {
+        title: "Inspect Samsung package boundaries and checksum",
+        input: { path: "/artifacts/firmware.tar.md5" },
+      },
+    ],
+  },
+  {
+    name: "extract_samsung_firmware",
+    ...toolContractMetadata("extract_samsung_firmware"),
+    kind: "native-provider",
+    description:
+      "Export every regular member of a supported local Samsung TAR.MD5 package unchanged, plus original footer bytes and manifest.json, into an absolute absent output_root whose parent exists. Requires a matching stored prefix MD5; verifies each payload length/SHA-256 while writing and on readback, and rehashes the complete stable source before publication. Rejects unsafe paths and overwrite, rolls back owned output on cancellation/failure and retains uncertain cleanup ownership. Streams multi-gigabyte inputs with bounded memory. No image mounting, supplied-code execution, device connection, account change, flashing or implicit tool installation.",
+    inputSchema: extractSamsungFirmwareInputSchema,
+    outputSchema: evidenceResultOf(samsungFirmwareExtractionSchema),
+    examples: [
+      {
+        title: "Export raw Samsung firmware members",
+        input: {
+          path: "/artifacts/firmware.tar.md5",
+          output_root: "/artifacts/firmware-export",
+        },
+      },
+    ],
+  },
   {
     name: "extract_palm_resources",
     ...toolContractMetadata("extract_palm_resources"),

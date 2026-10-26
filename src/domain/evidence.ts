@@ -69,6 +69,7 @@ export const evidenceFormatSchema = z.enum([
   "javascript-bundle",
   "entitlements",
   "palm-resource-database",
+  "samsung-tar-md5",
 ]);
 const subjectSchema = z.object({
   name: z.string().min(1),

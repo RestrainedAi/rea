@@ -1,5 +1,6 @@
 import { ArtifactReaderFailure } from "./ArtifactReader.js";
 import { ArtifactOperationError } from "../domain/artifactOperationError.js";
+import { AnalysisError } from "../domain/analysisErrorBase.js";
 import {
   AnalysisAccessDeniedError,
   AnalysisArtifactChangedError,
@@ -19,7 +20,9 @@ export const inspectionFailure = (
   operation:
     | "inspect_pe_resources"
     | "inspect_palm_resources"
-    | "extract_palm_resources",
+    | "extract_palm_resources"
+    | "inspect_samsung_firmware"
+    | "extract_samsung_firmware",
   description: string,
   signal?: AbortSignal,
 ) => {
@@ -32,6 +35,7 @@ export const inspectionFailure = (
         }
       : { cause };
   if (signal?.aborted) return new AnalysisCancelledError(operation, options);
+  if (cause instanceof AnalysisError) return cause;
   if (cause instanceof ArtifactReaderFailure) {
     if (cause.reason === "limit")
       return new AnalysisResourceConstraintError(
