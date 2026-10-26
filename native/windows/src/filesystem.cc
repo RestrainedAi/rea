@@ -492,7 +492,7 @@ static napi_value snapshot(napi_env env, napi_value rootValue, Runtime& root,
 
 napi_value filesystemCall(napi_env env, const std::wstring& operation, const std::vector<napi_value>& args) {
   const auto expected = operation == L"open" || operation == L"close" || operation == L"runtime_close" || operation == L"runtime_snapshot_cancel" ? 1
-                      : operation == L"runtime_create" || operation == L"runtime_mkdir" || operation == L"runtime_open" ? 2 : 3;
+                      : operation == L"runtime_create" || operation == L"runtime_mkdir" || operation == L"runtime_open" || operation == L"runtime_open_immutable" ? 2 : 3;
   require(args.size() == static_cast<size_t>(expected), "Wrong native filesystem argument count", L"", ERROR_INVALID_PARAMETER);
   if (operation == L"open") {
     auto file = openFile(wide(env, args[0]));
@@ -549,6 +549,21 @@ napi_value filesystemCall(napi_env env, const std::wstring& operation, const std
     file->handles.push_back(openComponent(path, GENERIC_READ, false,
                                           FILE_SHARE_READ | FILE_SHARE_WRITE |
                                               FILE_SHARE_DELETE));
+    verifyPrivate(file->get(), path, false);
+    auto result = identity(env, file->get(), path);
+    set(env, result, "handle", wrap(env, std::move(file)));
+    return result;
+  }
+  if (operation == L"runtime_open_immutable") {
+    const auto path = relativePath(root, wide(env, args[1]));
+    // Reuse the retained runtime lease: reopening its DELETE-bearing root
+    // through generic path traversal would fail the symmetric sharing check.
+    auto file = runtimeDirectory(root, path.substr(0, path.find_last_of(L'\\')));
+    file->path = path;
+    file->requestedPath = path;
+    // Python-created outputs have no retained native writer. A read-only
+    // final lease denies competing writes/deletes without relaxing ancestors.
+    file->handles.push_back(openComponent(path, GENERIC_READ, false, FILE_SHARE_READ));
     verifyPrivate(file->get(), path, false);
     auto result = identity(env, file->get(), path);
     set(env, result, "handle", wrap(env, std::move(file)));

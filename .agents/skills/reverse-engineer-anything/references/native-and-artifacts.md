@@ -164,7 +164,7 @@ header, depending on the binary and analyzer version.
 
 ## Packages and extraction
 
-Use `inspect_artifact` for application bundles, archives, ZIP/APK/IPA/MSIX/AppX,
+Use `inspect_artifact` for application bundles, archives, ZIP/APK/IPA/MSIX/AppX, 7z,
 ASAR, or DMG inputs when the artifact graph and findings help answer the
 question. It returns the complete artifact graph inline. Cite graph manifest
 IDs when using them.
@@ -176,6 +176,16 @@ zlib checksums, decoded sizes and encoded extents. Installer variables remain
 literal archive paths, and decoded bytes have no direct physical source range.
 Ordinary PE files retain root-only inventory and refuse extraction. No installer
 or contained executable is run; see the [Instyler guide](https://github.com/RestrainedAi/rea/blob/main/docs/instyler-archives.md).
+
+Configured Inno 7 and 7z profiles use the same artifact workflow through a pinned
+optional analyzer. `REA_STATIC_ARCHIVE_MANIFEST` selects trusted application-local
+parser/runtime files. The current bridge uses Windows private input snapshots,
+Job memory limits, explicit decoding budgets and a fixed ordinal-output protocol.
+It never runs supplied applications, scripts, drivers or members. The generated
+`__rea_archive_metadata.json` preserves literal names, declared checksums, separate
+encoded stream ranges and decoded offsets; decoded children have no direct source
+range or individual solid-compressed size. Encryption, unqualified profiles,
+warnings and limits are explicit refusals. See the [static archive guide](https://github.com/RestrainedAi/rea/blob/main/docs/static-archives.md).
 
 For an IPA or a macOS `.app`, ZIP, or DMG, pass the inventory Evidence to
 `project_apple_application_graph`. It reports application roots and nested

@@ -32,6 +32,7 @@ import {
 } from "../domain/rawBinary.js";
 import type { BinaryArchitecture } from "../domain/binaryTargetTypes.js";
 import { mzWindowsHeaderOffset } from "../domain/dosMz.js";
+import { hasSevenZipSignature } from "../domain/sevenZipFormat.js";
 import {
   hasZipSignature,
   isZipPackageFormat,
@@ -159,9 +160,13 @@ export const parseBinaryTarget = async (
           availableArchitectures: ["x86"],
         });
       }
+      const implicitDatabase =
+        targetKind === undefined && path.toLowerCase().endsWith(".hop");
+      const sevenZipDatabaseSuffix =
+        implicitDatabase && (await hasSevenZipFileSignature(handle, signal));
       if (
         targetKind === "database" ||
-        (targetKind === undefined && path.toLowerCase().endsWith(".hop"))
+        (implicitDatabase && !sevenZipDatabaseSuffix)
       )
         return ok({
           path,
@@ -170,7 +175,9 @@ export const parseBinaryTarget = async (
           kind: "database",
           format: "analysis-database",
         });
-      const artifactFormat = await detectArtifactFormat(path, handle, signal);
+      const artifactFormat = sevenZipDatabaseSuffix
+        ? "7z"
+        : await detectArtifactFormat(path, handle, signal);
       if (artifactFormat !== undefined) {
         const identity = {
           path,
@@ -248,6 +255,17 @@ const throwIfTargetResolutionCancelled = (signal?: AbortSignal): void => {
     throw new AnalysisCancelledError("resolve_binary_target");
 };
 
+const hasSevenZipFileSignature = async (
+  handle: FileHandle,
+  signal?: AbortSignal,
+): Promise<boolean> => {
+  throwIfTargetResolutionCancelled(signal);
+  const prefix = Buffer.alloc(6);
+  const observed = await handle.read(prefix, 0, prefix.length, 0);
+  throwIfTargetResolutionCancelled(signal);
+  return hasSevenZipSignature(prefix.subarray(0, observed.bytesRead));
+};
+
 const detectArtifactFormat = async (
   path: string,
   handle: FileHandle,
@@ -286,6 +304,7 @@ const detectArtifactFormat = async (
     if (lower.endsWith(".app")) return "app-pack";
     return zipPackageFormatForPath(lower) ?? "zip";
   }
+  if (hasSevenZipSignature(magic.subarray(0, observed.bytesRead))) return "7z";
   const named = namedArtifactFormat(lower);
   if (named !== undefined) return named;
   if (
@@ -331,7 +350,7 @@ const isArchiveFormat = (
     | "raw-binary"
   >,
 ): format is Extract<BinaryTarget, { kind: "archive" }>["format"] =>
-  isZipPackageFormat(format) || ["asar", "dmg", "pkg"].includes(format);
+  isZipPackageFormat(format) || ["7z", "asar", "dmg", "pkg"].includes(format);
 
 const sha256Handle = async (
   handle: FileHandle,

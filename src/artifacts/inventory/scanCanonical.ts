@@ -84,6 +84,7 @@ export const scanCanonicalArtifactInventoryInScope = async (
       rootFormat,
       options.environment ?? {},
       rootSource,
+      rootDigest?.sha256,
     );
   } catch (cause: unknown) {
     readerCreationFailure = { cause };

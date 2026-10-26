@@ -40,6 +40,7 @@ const artifactKindSchema = z.enum([
 const artifactFormatSchema = z.enum([
   "dmg",
   "zip",
+  "7z",
   "pkg",
   "asar",
   "javascript-bundle",
@@ -70,6 +71,7 @@ const artifactFormatSchema = z.enum([
 /** Formats established from bytes or a virtual directory tree, independent of path roles. */
 const artifactContentFormatSchema = artifactFormatSchema.extract([
   "zip",
+  "7z",
   "mach-o-universal",
   "mach-o",
   "elf",

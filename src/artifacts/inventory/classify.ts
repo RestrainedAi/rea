@@ -14,6 +14,7 @@ import {
   type ZipPackageFormat,
 } from "../../domain/zipPackageFormat.js";
 import { ArtifactReaderFailure } from "../ArtifactReader.js";
+import { hasSevenZipSignature } from "../../domain/sevenZipFormat.js";
 import type { ArtifactResourceOwner } from "../ArtifactResourceScope.js";
 import type { HashResult } from "../ArtifactHash.js";
 import {
@@ -113,6 +114,7 @@ export const classifyAndHashRootForInventory = async (
     );
     const retainSource =
       isZipPackageFormat(format) ||
+      format === "7z" ||
       format === "mach-o-universal" ||
       format === "pe";
     outcome = {
@@ -152,6 +154,7 @@ const classifyRootFormat = async (
   const prefix = magic.subarray(0, observed.bytesRead);
   const lower = path.toLowerCase();
   if (hasZipSignature(prefix)) return zipRootPackageFormat(lower);
+  if (hasSevenZipSignature(prefix)) return "7z";
   if (
     lower.endsWith(".pkg") &&
     prefix.subarray(0, 4).toString("ascii") === "xar!"

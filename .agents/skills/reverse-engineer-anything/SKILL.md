@@ -2,7 +2,7 @@
 name: reverse-engineer-anything
 description: Reverse engineer native, managed, Electron/JavaScript, packaged, firmware, and browser targets with REA. Use shipped-artifact or requested runtime evidence to explain features, compare versions, decompile code, or guide a reconstruction. Skip REA for ordinary source-repository architecture analysis.
 metadata:
-  version: "43"
+  version: "44"
 ---
 
 # REA
@@ -48,14 +48,21 @@ explicit path or endpoint and do not need it.
 
 - ASAR or extracted JavaScript/Electron tree:
   `analyze_javascript_application`.
-- Archive/package member inventory (ZIP/APK/IPA/MSIX/AppX or DMG):
+- Archive/package member inventory (ZIP/APK/IPA/MSIX/AppX, 7z or DMG):
   `open_binary` with the supplied local path; use `inspect_artifact` when its
   graph and findings help answer the question.
 - Instyler Ex-it! 1.6 PE installers with the supported `IS011A0020` directory:
   `open_binary`, then `inspect_artifact` or `extract_artifact`. REA validates
   each declared zlib member and retains opaque installer metadata without
-  executing it. Ordinary PE files remain root-only; other installer profiles
-  are unrecognized. See the [Instyler guide](https://github.com/RestrainedAi/rea/blob/main/docs/instyler-archives.md).
+  executing it. Ordinary PE files remain root-only. See the [Instyler guide](https://github.com/RestrainedAi/rea/blob/main/docs/instyler-archives.md).
+- Supported Inno 7 installers and 7z archives: `open_binary`, then
+  `inspect_artifact` or `extract_artifact`. Configure the pinned optional static
+  archive analyzer through `REA_STATIC_ARCHIVE_MANIFEST`; it requires Windows
+  private snapshots and enforced process memory limits. It checks every member,
+  preserves encoded solid-stream ranges separately from decoded offsets, and
+  exports generated `__rea_archive_metadata.json`. Unknown profiles, encryption,
+  warnings and budget overruns fail explicitly. Supplied programs and installer
+  scripts remain inert. See the [static archive guide](https://github.com/RestrainedAi/rea/blob/main/docs/static-archives.md).
 - Android APK code, classes, methods, or incoming references:
   `inspect_android_package`, then focused Android tools when advertised.
   Archive member inventory still uses the archive route above.

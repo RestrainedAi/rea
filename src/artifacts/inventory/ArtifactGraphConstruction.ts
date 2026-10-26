@@ -19,6 +19,7 @@ import {
   type ZipPackageFormat,
 } from "../../domain/zipPackageFormat.js";
 import { mzWindowsHeaderOffset, parseDosMzHeader } from "../../domain/dosMz.js";
+import { hasSevenZipSignature } from "../../domain/sevenZipFormat.js";
 
 /** Mutable internal occurrence used until root-bound IDs are known. */
 export interface MutableOccurrence {
@@ -105,8 +106,9 @@ export const noteUnreadContainerSuffix = (
 
 const containerSuffixFamily = (
   path: string,
-): "asar" | ZipPackageFormat | undefined => {
+): "7z" | "asar" | ZipPackageFormat | undefined => {
   const lower = path.toLowerCase();
+  if (lower.endsWith(".7z")) return "7z";
   return lower.endsWith(".asar") ? "asar" : zipPackageFormatForPath(lower);
 };
 
@@ -219,7 +221,7 @@ export const rootOccurrenceFor = (
   artifact_kind:
     metadata.format === "directory" ||
     isZipPackageFormat(metadata.format) ||
-    ["asar", "dmg", "pkg"].includes(metadata.format)
+    ["7z", "asar", "dmg", "pkg"].includes(metadata.format)
       ? "container"
       : artifactRoleForFormat(metadata.path, metadata.format).kind,
   artifact_format: metadata.format,
@@ -345,8 +347,8 @@ export const resolveOccurrenceParents = (
 };
 
 /**
- * Assign a path role hint. Container families are not path roles: ZIP and
- * ASAR families are chosen only after their bytes have been classified.
+ * Assign a path role hint. Container families are chosen only after their
+ * bytes have been classified.
  */
 export const classifyArtifactPath = (
   path: string,
@@ -372,7 +374,7 @@ export const classifyArtifactPath = (
   return { kind: "resource", format: "file" };
 };
 
-/** Classify executable formats from bytes while retaining path-specific roles. */
+/** Classify formats from bytes while retaining path-specific roles. */
 export const classifyArtifactContent = (
   path: string,
   prefix: Buffer,
@@ -413,6 +415,7 @@ const artifactRoleForFormat = (
   const byPath = classifyArtifactPath(path);
   if (format === "file" || format === byPath.format) return byPath;
   if (format === "unknown") return { kind: "unknown", format };
+  if (format === "7z") return { kind: "container", format };
   if (format === "zip")
     return {
       kind: "container",
@@ -432,6 +435,7 @@ export const classifyArtifactBytes = (
   prefix: Buffer,
   fileSize = prefix.length,
 ): ArtifactNode["format"] => {
+  if (hasSevenZipSignature(prefix)) return "7z";
   if (hasZipSignature(prefix)) return "zip";
   if (prefix.subarray(0, 8).equals(Buffer.from("bplist00"))) return "plist";
   if (prefix.length >= 4) {

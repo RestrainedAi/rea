@@ -15,6 +15,8 @@ const EXECUTION_WORDING =
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
   inspect_artifact:
     "states that supported installer inventory does not execute its contents",
+  extract_artifact:
+    "the configured archive analyzer executes, while supplied code and installer scripts remain inert",
   inspect_native_load_image: "states that it does not execute the target",
   resolve_native_call_targets: "states that it does not execute code",
   inspect_pe_resources: "states that it does not execute the image",

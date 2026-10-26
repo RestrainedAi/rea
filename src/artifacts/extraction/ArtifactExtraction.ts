@@ -2,7 +2,10 @@ import { lstat, realpath } from "node:fs/promises";
 
 import { compareUnicodeCodePoints } from "../../domain/unicodeCodePointOrder.js";
 import { digestCanonicalValue } from "../../domain/canonicalDigest.js";
-import { AsarArtifactReader } from "../AsarArtifactReader.js";
+import {
+  createArtifactReader,
+  prepareArtifactReader,
+} from "../ArtifactReaderFactory.js";
 import {
   ArtifactPathRegistry,
   normalizeArtifactPath,
@@ -13,12 +16,8 @@ import {
   type ArtifactReader,
 } from "../ArtifactReader.js";
 import { abortIfNeeded } from "../ArtifactHash.js";
-import { DirectoryArtifactReader } from "../DirectoryArtifactReader.js";
 import { SafeOutputTree } from "../SafeOutputTree.js";
 import { SafeOutputTreeCreationFailure } from "../SafeOutputTreeCreationFailure.js";
-import { ZipArtifactReader } from "../ZipArtifactReader.js";
-import { MachOSliceArtifactReader } from "../MachOSliceArtifactReader.js";
-import { InstylerArtifactReader } from "../InstylerArtifactReader.js";
 import {
   artifactExtractionResultSchema,
   type ArtifactExtractionResult,
@@ -232,14 +231,11 @@ const materializeSelection = async ({
   let completed: ArtifactExtractionResult | undefined;
   const extracted: ExtractedOccurrence[] = [];
   try {
-    if (
-      reader instanceof InstylerArtifactReader &&
-      !(await reader.prepare(signal))
-    )
+    if (!(await prepareArtifactReader(reader, signal)))
       throw new AnalysisUnsupportedTargetError(
         "extract_artifact",
         input.inputPath,
-        "PE artifact does not contain the supported Instyler Ex-it! 1.6 archive profile",
+        "Artifact does not contain an admitted extraction profile (supported PE profiles: Instyler Ex-it! 1.6 and configured Inno 7)",
       );
     try {
       output = await SafeOutputTree.create(input.outputRoot);
@@ -436,6 +432,7 @@ const requireExtractableFormat = async (
   if (
     !directory &&
     format !== "pe" &&
+    format !== "7z" &&
     format !== "asar" &&
     !isMachOFormat(format) &&
     !isZipFormat(format)
@@ -457,13 +454,23 @@ const createReader = async (
   expectedRootSha256?: string,
 ): Promise<ArtifactReader> => {
   const format = input.inputFormat;
-  if (await requireExtractableFormat(path, input))
-    return new DirectoryArtifactReader(path);
-  if (format === "asar") return new AsarArtifactReader(path);
-  if (format === "pe")
-    return new InstylerArtifactReader(path, undefined, expectedRootSha256);
-  if (isZipFormat(format)) return new ZipArtifactReader(path, format);
-  return new MachOSliceArtifactReader(path, input.environment);
+  const directory = await requireExtractableFormat(path, input);
+  const reader = createArtifactReader(
+    path,
+    directory ? "directory" : format,
+    input.environment,
+    {
+      purpose: "extraction",
+      ...(expectedRootSha256 === undefined ? {} : { expectedRootSha256 }),
+    },
+  );
+  if (reader === undefined)
+    throw new AnalysisUnsupportedTargetError(
+      "extract_artifact",
+      input.inputPath,
+      `Artifact format has no extraction reader: ${format}`,
+    );
+  return reader;
 };
 
 const preflight = (entry: ArtifactEntry): void => {
