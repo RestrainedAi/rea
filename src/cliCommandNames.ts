@@ -46,6 +46,8 @@ export const CLI_COMMANDS = Object.freeze({
   inspectPeResources: "inspect-pe-resources",
   inspectPalmResources: "inspect-palm-resources",
   extractPalmResources: "extract-palm-resources",
+  inspectSamsungFirmware: "inspect-samsung-firmware",
+  extractSamsungFirmware: "extract-samsung-firmware",
   inspectAnalysisView: "inspect-analysis-view",
   inspectEvidenceBundle: "inspect-evidence-bundle",
   inspectFirmwareRegions: "inspect-firmware-regions",

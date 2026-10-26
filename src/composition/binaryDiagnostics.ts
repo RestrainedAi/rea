@@ -8,6 +8,8 @@ import { PalmResourcesService } from "../application/binaryDiagnostics/PalmResou
 import { PalmResourcesProvider } from "../native/palm/PalmResourcesProvider.js";
 import { PalmExtractionService } from "../application/binaryDiagnostics/PalmExtractionService.js";
 import { PalmExtractionProvider } from "../native/palm/PalmExtractionProvider.js";
+import { SamsungFirmwareService } from "../application/binaryDiagnostics/SamsungFirmwareService.js";
+import { SamsungFirmwareProvider } from "../native/samsung/SamsungFirmwareProvider.js";
 
 /** Portable PE inspection with no engine, installation or target acquisition. */
 export const createPeResourcesService = (): PeResourcesService =>
@@ -19,6 +21,10 @@ export const createPalmResourcesService = (): PalmResourcesService =>
 
 export const createPalmExtractionService = (): PalmExtractionService =>
   new PalmExtractionService(new PalmExtractionProvider());
+
+/** Portable streamed Samsung package inspection/export, with no device connection. */
+export const createSamsungFirmwareService = (): SamsungFirmwareService =>
+  new SamsungFirmwareService(new SamsungFirmwareProvider());
 
 /** Compose the offline adapter without import-time I/O or dependency acquisition. */
 export const createBinaryLayoutService = (

@@ -391,7 +391,9 @@ const workflowAvailabilityFor = ({
   if (
     name === "inspect_pe_resources" ||
     name === "inspect_palm_resources" ||
-    name === "extract_palm_resources"
+    name === "extract_palm_resources" ||
+    name === "inspect_samsung_firmware" ||
+    name === "extract_samsung_firmware"
   )
     return { reason: "available", remediation: null };
   if (name === "inspect_evm_interface")

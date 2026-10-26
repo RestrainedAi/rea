@@ -100,6 +100,12 @@ export const TOOL_EFFECTS: Readonly<Record<string, ToolEffects>> = {
   }),
   inspect_pe_resources: evidence,
   inspect_palm_resources: evidence,
+  inspect_samsung_firmware: evidence,
+  extract_samsung_firmware: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    idempotent: false,
+  }),
   extract_palm_resources: effects({
     mutatesSession: true,
     writesFilesystem: true,

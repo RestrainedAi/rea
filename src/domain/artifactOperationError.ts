@@ -14,6 +14,8 @@ export class ArtifactOperationError extends AnalysisError {
       | "inspect_pe_resources"
       | "inspect_palm_resources"
       | "extract_palm_resources"
+      | "inspect_samsung_firmware"
+      | "extract_samsung_firmware"
       | "extract_artifact"
       | "decode_interface_builder"
       | "inspect_asset_catalog"
