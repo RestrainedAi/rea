@@ -42,16 +42,23 @@ const connect = async (root: string) => {
   return client;
 };
 
-cliTest(
-  "inspects and exports metadata-inclusive Samsung packages through compiled CLI and real stdio MCP",
-  async ({ cli }) => {
+cliTest.for(["metadata-inclusive", "minimum checksum record"] as const)(
+  "inspects and exports %s Samsung packages through compiled CLI and real stdio MCP",
+  { timeout: 40_000 },
+  async (profile, { cli }) => {
     const root = await createTestTempDirectory("rea-samsung-acceptance-");
     const path = join(root, "package.bin");
     const payload = Buffer.alloc(1024 * 1024 + 65537, 0x5a);
-    const fixture = samsungTarFixture([
-      { name: "boot.img", payload },
-      { name: "empty.img", payload: Buffer.alloc(0) },
-    ]);
+    const minimalRecord = profile === "minimum checksum record";
+    const fixture = samsungTarFixture(
+      [
+        { name: "boot.img", payload },
+        { name: "empty.img", payload: Buffer.alloc(0) },
+      ],
+      minimalRecord
+        ? { metadata: "", filename: "x", separator: " ", newline: "" }
+        : {},
+    );
     await writeFile(path, fixture.bytes);
     const client = await connect(root);
     const inspect = toolContract("inspect_samsung_firmware");
@@ -92,9 +99,16 @@ cliTest(
           checksum_range: { bytes: fixture.checksumRecordOffset },
         },
       });
-      expect(report.integrity.checksum_range.bytes).toBeGreaterThan(
-        report.tar_location.bytes,
-      );
+      if (minimalRecord) {
+        expect(report.footer.checksum_record_location.bytes).toBe(34);
+        expect(report.footer.checksum_filename).toBe("x");
+        expect(report.integrity.checksum_range.bytes).toBe(
+          report.tar_location.bytes,
+        );
+      } else
+        expect(report.integrity.checksum_range.bytes).toBeGreaterThan(
+          report.tar_location.bytes,
+        );
       expect(report.entries[0]!.payload.sha256).toBe(digest(payload));
       const cliOutput = join(root, "cli-export");
       const mcpOutput = join(root, "mcp-export");
@@ -158,7 +172,6 @@ cliTest(
       await client.close();
     }
   },
-  40_000,
 );
 
 cliTest(

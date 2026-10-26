@@ -251,7 +251,7 @@ const validFooter = (report: SamsungFirmware): boolean => {
     (footer.declared_tar_bytes === null ||
       footer.declared_tar_bytes === report.tar_location.bytes) &&
     footer.checksum_filename.length > 0 &&
-    footer.checksum_record_location.bytes >= 35 &&
+    footer.checksum_record_location.bytes >= 34 &&
     footer.checksum_record_location.offset >= footer.location.offset &&
     rangeEnd(footer.checksum_record_location) === report.artifact.bytes &&
     integrity.checksum_range.offset === 0 &&

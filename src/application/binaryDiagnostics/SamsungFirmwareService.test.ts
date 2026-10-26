@@ -97,6 +97,24 @@ const recordingService = (
 };
 
 describe("Samsung firmware Evidence boundary", () => {
+  it("accepts the parser floor of one space, one filename byte, and no newline", async () => {
+    const footer = `${"a".repeat(32)} x`;
+    const report = reportFixture();
+    report.artifact.bytes = 2048 + footer.length;
+    report.coverage.source_bytes_hashed = report.artifact.bytes;
+    report.footer = {
+      location: { offset: 2048, bytes: footer.length },
+      raw_hex: Buffer.from(footer).toString("hex"),
+      text: footer,
+      declared_tar_bytes: 2048,
+      checksum_record_location: { offset: 2048, bytes: footer.length },
+      checksum_filename: "x",
+    };
+    const result = await recordingService(report).service.inspect({
+      path: report.artifact.path,
+    });
+    expect(result).toMatchObject({ ok: true });
+  });
   it("preserves source identity and MD5 mismatch as observed evidence", async () => {
     const report = reportFixture();
     report.integrity.status = "mismatch";

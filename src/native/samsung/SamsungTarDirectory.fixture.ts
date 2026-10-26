@@ -13,6 +13,7 @@ export interface SamsungTarFixtureOptions {
   /** Complete metadata before the final digest; default includes the TAR size. */
   readonly metadata?: string;
   readonly filename?: string;
+  readonly separator?: " " | "  " | "\t";
   readonly newline?: "\n" | "\r\n" | "";
   readonly uppercaseMd5?: boolean;
   readonly declaredMd5?: string;
@@ -87,7 +88,7 @@ export const samsungTarFixture = (
   const declared = options.declaredMd5 ?? calculatedMd5;
   const md5 = options.uppercaseMd5 === true ? declared.toUpperCase() : declared;
   const checksum = Buffer.from(
-    `${md5}  ${options.filename ?? "synthetic_HOME.tar"}${newline}`,
+    `${md5}${options.separator ?? "  "}${options.filename ?? "synthetic_HOME.tar"}${newline}`,
     "latin1",
   );
   return {
