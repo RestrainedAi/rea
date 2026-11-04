@@ -1,5 +1,16 @@
 # Repository Guidelines
 
+## Project documentation
+
+Start with [docs/README.md](docs/README.md) before material work. Update affected
+docs with behavior, interface, data/security or operational changes, or explain
+the specific no-impact reason. Distinguish proposed/accepted/implemented/verified;
+never invent owners, approvals or passes. The index identifies the shared v2
+documentation standard and the project's checker; neither grants extra authority.
+For documentation-only work, use the offline Python check in
+[development](docs/development.md#documentation-only-check). Reading or editing
+docs does not require launching REA, its desktop, MCP server or providers.
+
 ## Fork ownership
 
 This maintained copy belongs to `RestrainedAi/rea`. Use our `origin` for branches,
@@ -24,6 +35,15 @@ Ghidra uses ephemeral databases without modifying executable bytes or controllin
 Configuration changes must be additive and idempotent, with backups. Installers must not install or upgrade unrelated software, including Homebrew, Node.js, npm, Java, or Ghidra. Ghidra and IDA are bring-your-own. `rea setup` must show its planned changes and require approval before writing files or installing Hopper.
 
 Preserve caller-selected inputs and local evidence, including output, URLs, paths, digests, and metadata. Redact transport authentication credentials and explicitly marked sensitive values; do not infer secrecy from names or text patterns. Do not persist the ambient environment merely because a child inherits it.
+
+## On-demand operation
+
+This maintained workbench runs when the user launches it or requests REA work.
+Its persistent personal Codex MCP registration is intentionally disabled. Use
+the installed CLI for a requested task, or an owned temporary MCP session when
+the investigation needs shared state. Close owned sessions after the task and
+verify process cleanup. Preserve this choice during setup/repair; absent
+permanent tools are expected. The desktop and CLI remain independently usable.
 
 ## Architecture and Cleanup
 

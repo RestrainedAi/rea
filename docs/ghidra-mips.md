@@ -1,3 +1,14 @@
+---
+owner: unassigned
+proposed_owner: REA documentation maintainer
+status: draft
+audience: users, maintainers and AI agents; repository-public
+baseline: e847121dea2c0ad9b9e9094f8d9c3afdcc3988e6; guide semantics not revalidated
+last_verified: never
+verified_by: none
+verification_scope: metadata adoption only; semantic review pending
+---
+
 # MIPS ELF analysis through Ghidra
 
 This lane extends native ELF analysis; it does not execute MIPS code or rehost
@@ -125,7 +136,7 @@ pointers alike.
 
 For soft-float targets REA commits
 `mips_soft_float_storage: o32-soft-float-prototype-v1` in the analysis profile
-and runs `ReaGhidraMipsSoftFloat.java` after auto-analysis. The script encodes
+and runs [ReaGhidraMipsSoftFloat.java](../bridge/ghidra/ReaGhidraMipsSoftFloat.java) after auto-analysis. The script encodes
 the program's own default o32 prototype, removes its floating-point parameter
 and return entries and the rules that consume floating-point storage, and
 installs the result as the program-specific `__rea_soft_float` prototype through

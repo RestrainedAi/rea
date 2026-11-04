@@ -1,0 +1,8 @@
+{
+  "docs/cli.md": {
+    "product-catalog.json": "docs/public/product-catalog.json"
+  },
+  "docs/mcp-contracts.md": {
+    "/rea/product-catalog.json": "docs/public/product-catalog.json"
+  }
+}

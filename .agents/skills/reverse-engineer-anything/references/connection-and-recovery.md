@@ -9,6 +9,14 @@ invocation in `SKILL.md` when acquiring REA is authorized. Follow the connected
 server's schemas and the installed CLI's help rather than assuming repository
 main and an older release expose the same arguments.
 
+## Deliberately on-demand installations
+
+If the user chose on-demand operation and the persistent registration is
+intentionally disabled, absent MCP tools are expected. Continue through the
+installed CLI. A task-owned SDK stdio session is available when several MCP
+calls need one active target; close it after the requested investigation.
+Do not apply the registration-repair recipes below to override this choice.
+
 ## Choose the remedy from the observed failure
 
 | Observation                                                     | Meaning and next step                                                                                                                                                                                                                                                                                                 |

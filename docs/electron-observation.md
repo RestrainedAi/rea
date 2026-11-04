@@ -1,3 +1,14 @@
+---
+owner: unassigned
+proposed_owner: REA documentation maintainer
+status: draft
+audience: users, maintainers and AI agents; repository-public
+baseline: e847121dea2c0ad9b9e9094f8d9c3afdcc3988e6; guide semantics not revalidated
+last_verified: never
+verified_by: none
+verification_scope: metadata adoption only; semantic review pending
+---
+
 # Electron file-page observation
 
 REA can attach to an Electron/Chromium CDP endpoint and inspect existing `file://` renderer pages without evaluating JavaScript or invoking Electron APIs. The request supplies the endpoint directly; REA accepts only literal-port loopback HTTP endpoints. Selecting an endpoint exposes every Electron target it serves, including local file paths and page metadata.

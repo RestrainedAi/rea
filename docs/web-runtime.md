@@ -1,3 +1,14 @@
+---
+owner: unassigned
+proposed_owner: REA documentation maintainer
+status: draft
+audience: users, maintainers and AI agents; repository-public
+baseline: e847121dea2c0ad9b9e9094f8d9c3afdcc3988e6; guide semantics not revalidated
+last_verified: never
+verified_by: none
+verification_scope: metadata adoption only; semantic review pending
+---
+
 # Website runtime source attribution
 
 REA integrates native Chrome DevTools Protocol inspection and precise V8 coverage through two composable tools. Supply an existing loopback CDP endpoint and a page target from `list_browser_targets`. With omitted origins, REA selects the page's current HTTP(S) origin. The browser and page remain externally owned.

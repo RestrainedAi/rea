@@ -1,3 +1,14 @@
+---
+owner: unassigned
+proposed_owner: REA documentation maintainer
+status: draft
+audience: users, maintainers and AI agents; repository-public
+baseline: e847121dea2c0ad9b9e9094f8d9c3afdcc3988e6; guide semantics not revalidated
+last_verified: never
+verified_by: none
+verification_scope: metadata adoption only; semantic review pending
+---
+
 # IDA Pro provider
 
 REA adapts an existing [mrexodia/ida-pro-mcp](https://github.com/mrexodia/ida-pro-mcp) server into its native analysis tools. Install and configure IDA, Hex-Rays, Python, and upstream MCP using that repository's instructions. REA does not install, upgrade, activate, or license them, and does not bundle another IDA server.

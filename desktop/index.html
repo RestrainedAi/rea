@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-src 'none'; form-action 'none'"
+    />
+    <title>REA Workbench</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="renderer.js" type="module"></script>
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark"
+          ><img src="assets/3-52/imgIconCode.svg" width="24" height="24" alt=""
+        /></span>
+        <div><strong>REA</strong><small>WORKBENCH</small></div>
+      </div>
+      <nav aria-label="Main navigation">
+        <button data-page="home">
+          <img
+            src="assets/3-52/imgIconGrid.svg"
+            width="20"
+            height="20"
+            alt=""
+          />Workbench</button
+        ><button data-page="projects">
+          <img
+            src="assets/3-52/imgIconFolder.svg"
+            width="20"
+            height="20"
+            alt=""
+          />Projects</button
+        ><button data-page="outputs">
+          <img
+            src="assets/3-52/imgIconDownload.svg"
+            width="20"
+            height="20"
+            alt=""
+          />Outputs</button
+        ><button data-page="tools">
+          <img
+            src="assets/3-52/imgIconTools.svg"
+            width="20"
+            height="20"
+            alt=""
+          />Tools &amp; storage
+        </button>
+      </nav>
+      <div class="current-project">
+        <p class="eyebrow">CURRENT PROJECT</p>
+        <div>
+          <img
+            src="assets/3-52/imgIconFolder1.svg"
+            width="18"
+            height="18"
+            alt=""
+          /><span id="current-project">Local workspace</span>
+        </div>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="storage">
+          <span>Everything stays here</span
+          ><code id="application-path">Application folder</code
+          ><small>Application · inputs · output</small>
+        </div>
+        <div class="connection" id="connection" role="status">
+          <img
+            src="assets/3-52/imgIconCheck.svg"
+            width="18"
+            height="18"
+            alt=""
+          />
+          <div><strong>Checking REA…</strong><small>Local analysis</small></div>
+        </div>
+      </div>
+    </aside>
+    <div class="workspace">
+      <header class="titlebar">
+        <span>REA Workbench</span>
+        <div>
+          <button data-window="minimize" aria-label="Minimize">—</button
+          ><button data-window="maximize" aria-label="Maximize">□</button
+          ><button data-window="close" aria-label="Close">×</button>
+        </div>
+      </header>
+      <header class="toolbar">
+        <span id="breadcrumb">Workbench</span
+        ><label class="search"
+          ><img
+            src="assets/3-52/imgIconSearch.svg"
+            width="20"
+            height="20"
+            alt=""
+          /><input
+            id="search"
+            type="search"
+            aria-label="Search projects and files"
+            placeholder="Search projects and files"
+          /><kbd>Ctrl K</kbd></label
+        ><button class="plain help" data-action="help">
+          <img
+            src="assets/3-52/imgIconInfo.svg"
+            width="20"
+            height="20"
+            alt=""
+          />Help</button
+        ><button
+          class="icon-button"
+          data-page="tools"
+          aria-label="Tools and storage"
+        >
+          <img
+            src="assets/3-52/imgIconSettings.svg"
+            width="20"
+            height="20"
+            alt=""
+          />
+        </button>
+      </header>
+      <main id="main" tabindex="-1"></main>
+      <footer class="statusbar">
+        <img
+          src="assets/3-52/imgIconFolder2.svg"
+          width="16"
+          height="16"
+          alt=""
+        /><code id="output-path">Output folder</code
+        ><button class="link" data-action="open-output">Open folder</button>
+      </footer>
+    </div>
+    <div id="notification" role="status" aria-live="polite"></div>
+    <dialog id="help">
+      <h2>REA Workbench</h2>
+      <p>
+        Choose a file, inspect its contents, review the findings, then extract
+        verified files or open a saved report.
+      </p>
+      <p>
+        Your selected program is inspected as data. It is never launched by this
+        workbench.
+      </p>
+      <dl>
+        <dt>Ctrl O</dt>
+        <dd>Choose a file</dd>
+        <dt>Ctrl K</dt>
+        <dd>Search projects or files</dd>
+        <dt>Tab / Shift Tab</dt>
+        <dd>Move through controls</dd>
+        <dt>Escape</dt>
+        <dd>Close this dialog</dd>
+      </dl>
+      <p>
+        Folders, supported archives, Palm resource databases, Samsung packages
+        and native EXE/DLL workflows use the installed REA readers. A failure
+        explains the unsupported profile or missing requirement.
+      </p>
+      <button class="button primary" data-action="close-help">Got it</button>
+    </dialog>
+  </body>
+</html>

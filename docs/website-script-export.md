@@ -1,3 +1,14 @@
+---
+owner: unassigned
+proposed_owner: REA documentation maintainer
+status: draft
+audience: users, maintainers and AI agents; repository-public
+baseline: e847121dea2c0ad9b9e9094f8d9c3afdcc3988e6; guide semantics not revalidated
+last_verified: never
+verified_by: none
+verification_scope: metadata adoption only; semantic review pending
+---
+
 # Captured website scripts and static JavaScript analysis
 
 `export_web_scripts` bridges retained browser sources into the existing local

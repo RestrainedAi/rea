@@ -1,0 +1,2 @@
+# Generated app-local dependencies. Keep binary assets out of source control.
+assets/fonts/*.woff2

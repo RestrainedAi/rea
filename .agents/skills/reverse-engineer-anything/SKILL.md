@@ -15,6 +15,20 @@ readiness or provider commands.
 
 ## Connect only when needed
 
+The user selected on-demand operation for this installation. A deliberately
+disabled persistent MCP registration is intentional. Prefer the installed `rea`
+CLI for a requested investigation; do not run setup or enable a resident server
+merely because MCP tools are absent. On this Windows workbench, invoke
+`I:\REA\rea.ps1` directly when PATH is unavailable. The desktop launcher runs
+independently when the user opens it.
+
+For a workflow that needs multiple MCP calls in one session, start an owned
+stdio server only for that requested task, using the existing installed SDK and
+portable runtime. Discover its actual tool schemas, retain the session only
+while investigating, close an opened target and the client/transport in cleanup,
+and verify the owned child exited. No detached server, startup task or idle
+watcher is needed. Preserve all existing target-execution and approval limits.
+
 Installing this skill supplies instructions; it does not register the REA MCP
 server, install analysis engines, or add tools to an already-running agent.
 

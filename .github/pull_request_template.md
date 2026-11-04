@@ -53,6 +53,15 @@ relevant real-provider or platform workflow, or explain why it was unavailable. 
 
 - `command` — result
 
+## Documentation impact
+
+- Declared project stage and metadata/review scope affected:
+- Reader tasks, contracts or workflows affected:
+- Canonical docs updated, or specific reason no update is needed:
+- Exact checks, environment/version, expected and observed outcomes:
+- Source coverage limits, unresolved facts and release risks:
+- Confirmed domain reviewer/owner, or unassigned and proposed next action:
+
 ## Compatibility, safety, and release
 
 <!-- Call out breaking changes, migrations, package effects, platform/provider
